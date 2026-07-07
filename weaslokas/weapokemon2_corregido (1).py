@@ -1,4 +1,4 @@
-#weapokemon2
+#weapokemon2 - VERSION CORREGIDA
 
 import random
 equipo_pokemon = []
@@ -61,6 +61,13 @@ def stats_pokemon(stat):
     except ValueError:
         return False
     return 1 <= estadistica <= 255
+
+# NUEVO: función auxiliar para buscar un pokemon por nombre en equipo_pokemon
+def buscar_pokemon(nombre):
+    for i in equipo_pokemon:
+        if i["nombre"] == nombre:
+            return i
+    return None
 
 def suerte_shiny():
     shiny = random.randint(1, 10)
@@ -185,17 +192,21 @@ def registrar_stats_pokemon():
         print("Error: No hay ningun pokemon registrado, registra uno para poder asignarle sus estadisticas")
         return
     
+    # CORREGIDO: validar el nombre correctamente y verificar que el pokemon exista
     while True:
         pokemon_stat = input("Ingresa el nombre del pokemon: ").lower()
-        if not validar_nombre_pokemon(stats_pokemon):
+        if not validar_nombre_pokemon(pokemon_stat):
             print(f"Error: Evita dejar vacio o espacios blancos el nombre, intentalo de nuevo")
             continue
-        else:
-            break
+        if buscar_pokemon(pokemon_stat) is None:
+            print(f"Error: No existe un pokemon registrado con el nombre '{pokemon_stat}', intentalo de nuevo")
+            continue
+        break
 
+    # CORREGIDO: convertir a entero con try/except antes de comparar
     while True:
         try:
-            nivel = input("Ingresa el nivel del pokemon: ")
+            nivel = int(input("Ingresa el nivel del pokemon: "))
         except ValueError:
             print("Error: Debes ingresar numeros enteros validos")
             continue
@@ -206,52 +217,59 @@ def registrar_stats_pokemon():
 
         break
 
+    # CORREGIDO: usar stats_pokemon() (validador) en vez de registrar_stats_pokemon() (esta misma funcion)
     while True:
         vida = input("Ingresa cuantos puntos base de vida tiene el pokemon: ")
-        if not registrar_stats_pokemon(vida):
+        if not stats_pokemon(vida):
             print("Error: Debes ingresar un numero entero valido en un rango de 1 a 255, intentalo de nuevo")
             continue
         else:
+            vida = int(vida)
             break
 
     while True:
         ataque = input("Ingresa cuantos puntos base de ataque tiene el pokemon: ")
-        if not registrar_stats_pokemon(ataque):
+        if not stats_pokemon(ataque):
             print("Error: Debes ingresar un numero entero valido en un rango de 1 a 255, intentalo de nuevo")
             continue
         else:
+            ataque = int(ataque)
             break
 
     while True:
         defensa = input("Ingresa cuantos puntos base de defensa tiene el pokemon: ")
-        if not registrar_stats_pokemon(defensa):
+        if not stats_pokemon(defensa):
             print("Error: Debes ingresar un numero entero valido en un rango de 1 a 255, intentalo de nuevo")
             continue
         else:
+            defensa = int(defensa)
             break
 
     while True:
         ataque_especial = input("Ingresa cuantos puntos base de ataque especial tiene el pokemon: ")
-        if not registrar_stats_pokemon(ataque_especial):
+        if not stats_pokemon(ataque_especial):
             print("Error: Debes ingresar un numero entero valido en un rango de 1 a 255, intentalo de nuevo")
             continue
         else:
+            ataque_especial = int(ataque_especial)
             break
 
     while True:
         defensa_especial = input("Ingresa cuantos puntos base de defensa especial tiene el pokemon: ")
-        if not registrar_stats_pokemon(defensa_especial):
+        if not stats_pokemon(defensa_especial):
             print("Error: Debes ingresar un numero entero valido en un rango de 1 a 255, intentalo de nuevo")
             continue
         else:
+            defensa_especial = int(defensa_especial)
             break
     
     while True:
         velocidad = input("Ingresa cuantos puntos base de velocidad tiene el pokemon: ")
-        if not registrar_stats_pokemon(velocidad):
+        if not stats_pokemon(velocidad):
             print("Error: Debes ingresar un numero entero valido en un rango de 1 a 255, intentalo de nuevo")
             continue
         else:
+            velocidad = int(velocidad)
             break
     
     nuevo_stat_pokemon = {
@@ -260,7 +278,7 @@ def registrar_stats_pokemon():
         "vida": vida,
         "ataque": ataque,
         "defensa": defensa,
-        "ataque_espcial": ataque_especial,
+        "ataque_especial": ataque_especial,  # CORREGIDO: typo "ataque_espcial" -> "ataque_especial"
         "defensa_especial": defensa_especial,
         "velocidad": velocidad
     }
@@ -274,34 +292,36 @@ def ver_equipo_pokemon():
     if len(equipo_pokemon) == 0:
         print("Error: No hay ningun pokemon registrado, registra uno para poder asignarle sus estadisticas")
         return
-    
-    if len(equipo_pokemon) != 0 and len(stat_equipo_pokemon) == 0:
+
+    # CORREGIDO: recorrer la lista con un for y vincular cada pokemon
+    # con sus estadisticas buscando por nombre en stat_equipo_pokemon
+    for pokemon in equipo_pokemon:
         print("*" * 10, "EQUIPO-POKEMON", "*" * 10)
-        print(f"Nombre: {equipo_pokemon["nombre"]}")
-        print(f"Primer tipo: {equipo_pokemon["tipo1"]}")
-        print(f"Segundo tipo: {equipo_pokemon["tipo2"]}")
-        print(f"Genero: {equipo_pokemon["genero"]}")
-        print(f"Naturaleza: {equipo_pokemon["naturaleza"]}")
-        print(f"Shiny: {equipo_pokemon["shiny"]}")
+        print(f"Nombre: {pokemon['nombre']}")
+        print(f"Primer tipo: {pokemon['tipo1']}")
+        print(f"Segundo tipo: {pokemon['tipo2']}")
+        print(f"Genero: {pokemon['genero']}")
+        print(f"Naturaleza: {pokemon['naturaleza']}")
+        print(f"Shiny: {pokemon['shiny']}")
+
+        stats_encontradas = None
+        for stat in stat_equipo_pokemon:
+            if stat["pokemon_stat"] == pokemon["nombre"]:
+                stats_encontradas = stat
+                break
+
         print("*" * 10, "ESTADISTICAS-BASE", "*" * 10)
-        print("No hay estadisticas base")
+        if stats_encontradas is None:
+            print("No hay estadisticas base registradas")
+        else:
+            print(f"Nivel: {stats_encontradas['nivel']}")
+            print(f"Vida: {stats_encontradas['vida']}")
+            print(f"Ataque: {stats_encontradas['ataque']}")
+            print(f"Defensa: {stats_encontradas['defensa']}")
+            print(f"Ataque Especial: {stats_encontradas['ataque_especial']}")
+            print(f"Defensa Especial: {stats_encontradas['defensa_especial']}")
+            print(f"Velocidad: {stats_encontradas['velocidad']}")
         print("*" * 40)
-    elif len(equipo_pokemon) != 0 and len(stat_equipo_pokemon) != 0:
-        print("*" * 10, "EQUIPO-POKEMON", "*" * 10)
-        print(f"Nombre: {equipo_pokemon["nombre"]}")
-        print(f"Primer tipo: {equipo_pokemon["tipo1"]}")
-        print(f"Segundo tipo: {equipo_pokemon["tipo2"]}")
-        print(f"Genero: {equipo_pokemon["genero"]}")
-        print(f"Naturaleza: {equipo_pokemon["naturaleza"]}")
-        print(f"Shiny: {equipo_pokemon["shiny"]}")
-        print("*" * 10, "ESTADISTICAS-BASE", "*" * 10)
-        print(f"Vida: {stat_equipo_pokemon["vida"]}")
-        print(f"Ataque: {stat_equipo_pokemon["ataque"]}")
-        print(f"Defensa: {stat_equipo_pokemon["defensa"]}")
-        print(f"Ataque Especial: {stat_equipo_pokemon["ataque_especial"]}")
-        print(f"Defensa Especial: {stat_equipo_pokemon["defensa_especial"]}")
-        print(f"Velocidad: {stat_equipo_pokemon["velocidad"]}")
-        print("*" * 30)
     
 def eliminar_pokemon():
     print("Eliminando pokemon del equipo")
@@ -311,9 +331,55 @@ def eliminar_pokemon():
         print("Error: No hay ningun pokemon registrado, registra uno para poder asignarle sus estadisticas")
         return
     
+    # CORREGIDO: recorrer toda la lista antes de decidir si existe o no,
+    # y eliminarlo realmente de equipo_pokemon (y de sus stats, si tiene)
     while True:
-        nombre_pokemon_eliminar = input("Ingresa el nombre del pokemon que deseas eliminar: ")
-        for i in equipo_pokemon:
-            if not i["nombre"] == nombre_pokemon_eliminar:
-                print(f"Error: No se ha encontrado el nombre del pokemon: {nombre_pokemon_eliminar}")
-                return
+        nombre_pokemon_eliminar = input("Ingresa el nombre del pokemon que deseas eliminar: ").lower()
+
+        pokemon_encontrado = buscar_pokemon(nombre_pokemon_eliminar)
+
+        if pokemon_encontrado is None:
+            print(f"Error: No se ha encontrado el nombre del pokemon: {nombre_pokemon_eliminar}")
+            continue
+
+        equipo_pokemon.remove(pokemon_encontrado)
+
+        # Tambien eliminamos sus estadisticas si las tenia registradas
+        for stat in stat_equipo_pokemon:
+            if stat["pokemon_stat"] == nombre_pokemon_eliminar:
+                stat_equipo_pokemon.remove(stat)
+                break
+
+        print(f"El pokemon '{nombre_pokemon_eliminar}' ha sido eliminado del equipo")
+        break
+
+
+# NUEVO: bucle principal para poder ejecutar el programa
+def main():
+    while True:
+        mostrar_menu()
+        opcion = leer_opcion()
+
+        if opcion == 1:
+            registrar_pokemon()
+        elif opcion == 2:
+            registrar_stats_pokemon()
+        elif opcion == 3:
+            ver_equipo_pokemon()
+        elif opcion == 4:
+            eliminar_pokemon()
+        elif opcion == 5:
+            if len(equipo_pokemon) == 0:
+                print("Error: No hay ningun pokemon registrado")
+            else:
+                nombre = input("Ingresa el nombre del pokemon a verificar: ").lower()
+                if buscar_pokemon(nombre) is None:
+                    print(f"Error: No existe un pokemon con el nombre '{nombre}'")
+                else:
+                    verificar_shiny(nombre)
+        elif opcion == 6:
+            print("Saliendo del programa...")
+            break
+
+if __name__ == "__main__":
+    main()
